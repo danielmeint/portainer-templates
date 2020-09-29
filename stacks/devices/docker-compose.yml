@@ -1,0 +1,59 @@
+version: "3.7"
+x-logging: &default-logging
+  options:
+    max-size: "50m"
+
+services:
+  lpbf-server:
+    image: registry.gitlab.com/conceptreply/fundings/bmbf/idam-machine-simulators/lpbf-anlage:latest
+    ports:
+      - 4841:4841
+    networks: 
+      - idam-test-network
+
+  pa-server:
+    image: registry.gitlab.com/conceptreply/fundings/bmbf/idam-machine-simulators/volkmann-pulveraufbereitung:latest
+    ports:
+      - 4840:4840
+    networks: 
+      - idam-test-network
+
+  plc-server:
+    image: registry.gitlab.com/conceptreply/fundings/bmbf/idam-machine-simulators/plc-automation:latest
+    ports:
+      - 4842:4842
+    networks: 
+      - idam-test-network
+
+  ep-server:
+    image: registry.gitlab.com/conceptreply/fundings/bmbf/idam-machine-simulators/entpulverung:latest
+    ports:
+      - 4843:4843
+    networks: 
+      - idam-test-network
+
+  riot-server:
+    image: registry.gitlab.com/conceptreply/fundings/bmbf/idam-machine-simulators/kinexon-riot:latest
+    ports:
+      - 4844:4844
+    networks: 
+      - idam-test-network
+
+  saw-server:
+    image: registry.gitlab.com/conceptreply/fundings/bmbf/idam-machine-simulators/myrenne-saw:latest
+    ports:
+      - 4845:4845
+    networks: 
+      - idam-test-network
+
+  at-server:
+    image: registry.gitlab.com/conceptreply/fundings/bmbf/idam-machine-simulators/abtrennen:latest
+    ports: 
+      - 4846:4846
+    networks: 
+      - idam-test-network
+ 
+networks:
+  idam-test-network:
+    external: true
+

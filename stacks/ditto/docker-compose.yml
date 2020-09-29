@@ -1,0 +1,196 @@
+version: "3.7"
+x-logging: &default-logging
+  options:
+    max-size: "50m"
+
+services:
+  policies:
+    image: docker.io/eclipse/ditto-policies:1.0.0
+    environment:
+      - TZ=Europe/Berlin
+      - INSTANCE_INDEX=1
+      - BIND_HOSTNAME=0.0.0.0
+      - OPENJ9_JAVA_OPTIONS=-XX:+ExitOnOutOfMemoryError -Xtune:virtualized -Xss512k -XX:MaxRAMPercentage=80 -Dakka.coordinated-shutdown.exit-jvm=on -Dakka.cluster.shutdown-after-unsuccessful-join-seed-nodes=120s
+      - BOOTSTRAP_DISCOVERY_METHOD=docker-swarm-dns
+      - CLUSTER_BS_EFFECTIVE_NAME=tasks.ditto-cluster
+    # Set additional configuration options here
+    # -Dditto.policies...
+    command: java -jar starter.jar
+    logging:
+      driver: fluentd
+      options:
+        tag: docker.ditto.policies
+        fluentd-async-connect: "true"
+    networks:
+      idam-test-network:
+        aliases: 
+          - ditto-cluster
+
+  things:
+    image: docker.io/eclipse/ditto-things:1.0.0
+    depends_on:
+      - policies
+    environment:
+      - TZ=Europe/Berlin
+      - INSTANCE_INDEX=1
+      - BIND_HOSTNAME=0.0.0.0
+      - OPENJ9_JAVA_OPTIONS=-XX:+ExitOnOutOfMemoryError -Xtune:virtualized -Xss512k -XX:MaxRAMPercentage=80 -Dakka.coordinated-shutdown.exit-jvm=on -Dakka.cluster.shutdown-after-unsuccessful-join-seed-nodes=120s
+      - BOOTSTRAP_DISCOVERY_METHOD=docker-swarm-dns
+      - CLUSTER_BS_EFFECTIVE_NAME=tasks.ditto-cluster
+    command: java -jar starter.jar
+    logging:
+      driver: fluentd
+      options:
+        tag: docker.ditto.things
+        fluentd-async-connect: "true"
+    networks:
+      idam-test-network:
+        aliases: 
+          - ditto-cluster
+
+  things-search:
+    image: docker.io/eclipse/ditto-things-search:1.0.0
+    depends_on:
+      - policies
+    environment:
+      - TZ=Europe/Berlin
+      - INSTANCE_INDEX=1
+      - BIND_HOSTNAME=0.0.0.0
+      - OPENJ9_JAVA_OPTIONS=-XX:+ExitOnOutOfMemoryError -Xtune:virtualized -Xss512k -XX:MaxRAMPercentage=80 -Dakka.coordinated-shutdown.exit-jvm=on -Dakka.cluster.shutdown-after-unsuccessful-join-seed-nodes=120s
+      - BOOTSTRAP_DISCOVERY_METHOD=docker-swarm-dns
+      - CLUSTER_BS_EFFECTIVE_NAME=tasks.ditto-cluster
+    command: java -jar starter.jar
+    logging:
+      driver: fluentd
+      options:
+        tag: docker.ditto.things-search
+        fluentd-async-connect: "true"
+    networks:
+      idam-test-network:
+        aliases: 
+          - ditto-cluster
+
+  concierge:
+    image: docker.io/eclipse/ditto-concierge:1.0.0
+    depends_on:
+      - policies
+    environment:
+      - TZ=Europe/Berlin
+      - INSTANCE_INDEX=1
+      - BIND_HOSTNAME=0.0.0.0
+      - OPENJ9_JAVA_OPTIONS=-XX:+ExitOnOutOfMemoryError -Xtune:virtualized -Xss512k -XX:MaxRAMPercentage=80 -Dakka.coordinated-shutdown.exit-jvm=on -Dakka.cluster.shutdown-after-unsuccessful-join-seed-nodes=120s
+      - BOOTSTRAP_DISCOVERY_METHOD=docker-swarm-dns
+      - CLUSTER_BS_EFFECTIVE_NAME=tasks.ditto-cluster
+    command: java -jar starter.jar
+    logging:
+      driver: fluentd
+      options:
+        tag: docker.ditto.concierge
+        fluentd-async-connect: "true"
+    networks:
+      idam-test-network:
+        aliases: 
+          - ditto-cluster
+
+  connectivity:
+    image: docker.io/eclipse/ditto-connectivity:1.0.0
+    depends_on:
+      - policies
+      - concierge
+    environment:
+      - TZ=Europe/Berlin
+      - INSTANCE_INDEX=1
+      - BIND_HOSTNAME=0.0.0.0
+      - CONNECTIVITY_CONNECTION_BLACKLISTED_HOSTNAMES=
+      - OPENJ9_JAVA_OPTIONS=-XX:+ExitOnOutOfMemoryError -Xtune:virtualized -Xss512k -XX:MaxRAMPercentage=80 -Dakka.coordinated-shutdown.exit-jvm=on -Dakka.cluster.shutdown-after-unsuccessful-join-seed-nodes=120s
+      - BOOTSTRAP_DISCOVERY_METHOD=docker-swarm-dns
+      - CLUSTER_BS_EFFECTIVE_NAME=tasks.ditto-cluster
+    command: java -jar starter.jar
+    logging:
+      driver: fluentd
+      options:
+        tag: docker.ditto.connectivity
+        fluentd-async-connect: "true"
+    networks:
+      idam-test-network:
+        aliases: 
+          - ditto-cluster
+
+  gateway:
+    image: docker.io/eclipse/ditto-gateway:1.0.0
+    depends_on:
+      - policies
+      - concierge
+    ports:
+      - "8081:8080"
+    environment:
+      - TZ=Europe/Berlin
+      - INSTANCE_INDEX=1
+      - BIND_HOSTNAME=0.0.0.0
+      - ENABLE_DUMMY_AUTH=true
+      - OPENJ9_JAVA_OPTIONS=-XX:+ExitOnOutOfMemoryError -Xtune:virtualized -Xss512k -XX:MaxRAMPercentage=80 -Dakka.coordinated-shutdown.exit-jvm=on -Dakka.cluster.shutdown-after-unsuccessful-join-seed-nodes=120s
+      - BOOTSTRAP_DISCOVERY_METHOD=docker-swarm-dns
+      - CLUSTER_BS_EFFECTIVE_NAME=tasks.ditto-cluster
+    command: java -Dditto.gateway.authentication.devops.password=foobar -jar starter.jar
+    logging:
+      driver: fluentd
+      options:
+        tag: docker.ditto.gateway
+        fluentd-async-connect: "true"
+    networks:
+      idam-test-network:
+        aliases: 
+          - ditto-cluster
+
+  nginx:
+    image: docker.io/nginx:1.13-alpine
+    volumes: # should all be docker configs
+       - ../cfg/ditto-nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+       - ../cfg/ditto-nginx/nginx.htpasswd:/etc/nginx/nginx.htpasswd:ro
+       - ../cfg/ditto-nginx/nginx-cors.conf:/etc/nginx/nginx-cors.conf:ro
+       - ../cfg/ditto-nginx/index.html:/etc/nginx/html/index.html:ro
+    ports:
+      - "8089:80"
+    environment: # probably not necessary
+      - BOOTSTRAP_DISCOVERY_METHOD=docker-swarm-dns
+      - CLUSTER_BS_EFFECTIVE_NAME=tasks.ditto-cluster
+    depends_on:
+      - gateway
+      - swagger-ui
+    logging:
+      driver: fluentd
+      options:
+        tag: docker.ditto.nginx
+        fluentd-async-connect: "true"
+    networks:
+      - idam-test-network
+
+  swagger-ui:
+    image: docker.io/swaggerapi/swagger-ui:v3.20.5
+    volumes:
+        - ../cfg/swagger/openapi:/usr/share/nginx/html/openapi:ro
+        - ../cfg/swagger/swagger3-index.html:/usr/share/nginx/html/index.html:ro
+    command: nginx -g 'daemon off;'
+    environment: 
+      - BOOTSTRAP_DISCOVERY_METHOD=docker-swarm-dns
+      - CLUSTER_BS_EFFECTIVE_NAME=tasks.ditto-cluster
+    logging:
+      driver: fluentd
+      options:
+        tag: docker.ditto.swagger-ui
+        fluentd-async-connect: "true"
+    networks:
+      - idam-test-network
+
+volumes:
+  timescale_store:
+    name: timescale_store
+  mongo_store:
+    name: mongo_store
+  grafana-storage:
+    name: grafana-storage
+
+networks:
+  idam-test-network:
+    external: true
+

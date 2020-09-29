@@ -1,21 +1,157 @@
 {
 	"version": "2",
-	"templates": [{
-			"type": 1,
-			"title": "Registry",
-			"description": "Docker image registry",
+	"templates": [
+		{
+			"type": 2,
+			"title": "IDAM Core",
+			"description": "IDAM Core",
+			"note": "Deploys IDAM Core services: Device Management, ...",
 			"categories": [
-				"docker"
+				"idam"
 			],
 			"platform": "linux",
-			"logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/registry.png",
-			"image": "registry:latest",
-			"ports": [
-				"5000/tcp"
+			"logo": "https://intecweb.de/wp-content/uploads/2019/08/Unbenannt-1.jpg",
+			"repository": {
+				"url": "https://github.com/danielmeint/portainer-templates",
+				"stackfile": "stacks/core/docker-compose.yml"
+			}
+		},
+		{
+			"type": 2,
+			"title": "IDAM Devices",
+			"description": "IDAM Devices",
+			"note": "Deploys IDAM Device simulators",
+			"categories": [
+				"idam"
 			],
-			"volumes": [{
-				"container": "/var/lib/registry"
-			}]
+			"platform": "linux",
+			"logo": "https://intecweb.de/wp-content/uploads/2019/08/Unbenannt-1.jpg",
+			"repository": {
+				"url": "https://github.com/danielmeint/portainer-templates",
+				"stackfile": "stacks/devices/docker-compose.yml"
+			}
+		},
+		{
+			"type": 2,
+			"title": "IDAM Ditto",
+			"description": "IDAM Ditto",
+			"note": "Deploys IDAM Ditto services",
+			"categories": [
+				"idam"
+			],
+			"platform": "linux",
+			"logo": "https://intecweb.de/wp-content/uploads/2019/08/Unbenannt-1.jpg",
+			"repository": {
+				"url": "https://github.com/danielmeint/portainer-templates",
+				"stackfile": "stacks/ditto/docker-compose.yml"
+			}
+		},
+
+		{
+			"type": 2,
+			"title": "IDAM EFK",
+			"description": "IDAM EFK",
+			"note": "Deploys IDAM EFK stack",
+			"categories": [
+				"idam"
+			],
+			"platform": "linux",
+			"logo": "https://intecweb.de/wp-content/uploads/2019/08/Unbenannt-1.jpg",
+			"repository": {
+				"url": "https://github.com/danielmeint/portainer-templates",
+				"stackfile": "stacks/efk/docker-compose.yml"
+			}
+		},
+		{
+			"type": 2,
+			"title": "IDAM Infrastructure",
+			"description": "IDAM Infrastructure",
+			"note": "Deploys IDAM Infrastructure services",
+			"categories": [
+				"idam"
+			],
+			"platform": "linux",
+			"logo": "https://intecweb.de/wp-content/uploads/2019/08/Unbenannt-1.jpg",
+			"repository": {
+				"url": "https://github.com/danielmeint/portainer-templates",
+				"stackfile": "stacks/infrastructure/docker-compose.yml"
+			}
+		},
+		{
+			"type": 2,
+			"title": "IDAM Prefect Agent",
+			"description": "IDAM Prefect Agent",
+			"note": "Deploys IDAM Prefect Agent",
+			"categories": [
+				"idam"
+			],
+			"platform": "linux",
+			"logo": "https://intecweb.de/wp-content/uploads/2019/08/Unbenannt-1.jpg",
+			"repository": {
+				"url": "https://github.com/danielmeint/portainer-templates",
+				"stackfile": "stacks/prefect/docker-compose.yml"
+			}
+		},
+		{
+			"type": 2,
+			"title": "Portainer Agent",
+			"description": "Manage all the resources in your Swarm cluster",
+			"note": "The agent will be deployed globally inside your cluster and available on port 9001.",
+			"categories": [
+				"portainer"
+			],
+			"platform": "linux",
+			"logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/portainer.png",
+			"repository": {
+				"url": "https://github.com/portainer/templates",
+				"stackfile": "stacks/portainer-agent/docker-stack.yml"
+			}
+		},
+		{
+			"type": 2,
+			"title": "OpenFaaS",
+			"name": "func",
+			"description": "Serverless functions made simple",
+			"note": "Deploys the API gateway and sample functions. You can access the UI on port 8080. <b>Warning</b>: the name of the stack must be 'func'.",
+			"categories": [
+				"serverless"
+			],
+			"platform": "linux",
+			"logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/openfaas.png",
+			"repository": {
+				"url": "https://github.com/openfaas/faas",
+				"stackfile": "docker-compose.yml"
+			}
+		},
+		{
+			"type": 2,
+			"title": "IronFunctions",
+			"description": "Open-source serverless computing platform",
+			"note": "Deploys the IronFunctions API and UI.",
+			"categories": [
+				"serverless"
+			],
+			"platform": "linux",
+			"logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/ironfunctions.png",
+			"repository": {
+				"url": "https://github.com/portainer/templates",
+				"stackfile": "stacks/ironfunctions/docker-stack.yml"
+			}
+		},
+		{
+			"type": 2,
+			"title": "CockroachDB",
+			"description": "CockroachDB cluster",
+			"note": "Deploys an insecure CockroachDB cluster, please refer to <a href=\"https://www.cockroachlabs.com/docs/stable/orchestrate-cockroachdb-with-docker-swarm.html\" target=\"_blank\">CockroachDB documentation</a> for production deployments.",
+			"categories": [
+				"database"
+			],
+			"platform": "linux",
+			"logo": "https://portainer-io-assets.sfo2.digitaloceanspaces.com/logos/cockroachdb.png",
+			"repository": {
+				"url": "https://github.com/portainer/templates",
+				"stackfile": "stacks/cockroachdb/docker-stack.yml"
+			}
 		}
 	]
 }

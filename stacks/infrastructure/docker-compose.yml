@@ -1,0 +1,71 @@
+version: "3.7"
+x-logging: &default-logging
+  options:
+    max-size: "50m"
+
+services:
+  mongodb:
+    image: mongo
+    volumes:
+      - mongo_store:/data/db
+    environment:
+      TZ: Europe/Berlin
+    command: mongod --storageEngine wiredTiger --noscripting
+    user: mongodb
+    ports:
+      - 27017:27017
+    networks:
+      - idam-test-network
+
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - 15672:15672
+      - 5672:5672
+      - 15675:15675
+    # configs:
+    #   - source: rabbitmq-enabled-plugins
+    #     target: /etc/rabbitmq/enabled_plugins
+    #   - source: rabbitmq-config
+    #     target: /etc/rabbitmq/rabbitmq.conf
+    networks:
+      - idam-test-network
+
+  timescaledb:
+    image: timescale/timescaledb:latest-pg11
+    ports:
+      - 6543:5432
+    environment:
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - timescale_store:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - idam-test-network
+
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    ports:
+      - 3001:3000
+    networks:
+      - idam-test-network
+
+volumes:
+  timescale_store:
+    name: timescale_store
+  mongo_store:
+    name: mongo_store
+  grafana-storage:
+    name: grafana-storage
+
+networks:
+  idam-test-network:
+    external: true
+
+configs:
+  rabbitmq-config:
+    external: true
+  rabbitmq-enabled-plugins:
+    external: true

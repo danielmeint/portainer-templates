@@ -1,0 +1,104 @@
+version: "3.7"
+x-logging: &default-logging
+  options:
+    max-size: "50m"
+
+services:
+  device-management-api:
+    image: registry.gitlab.com/conceptreply/fundings/bmbf/idam-device-management/device-management-api:latest
+    environment:
+      - api_port=9090
+      - eclipseditto_api_password=ditto
+      - eclipseditto_api_url=http://nginx:80/api/2
+      - eclipseditto_api_user=ditto
+      - eclipseditto_connection_create_modify_file_name_with_path=eclipse-ditto-connection-create-modify.json
+      - eclipseditto_connection_id=rabbitmq-connection-1
+      - eclipseditto_connection_retrieve_file_name_with_path=eclipse-ditto-connection-retrieve.json
+      - eclipseditto_piggyback_password=foobar
+      - eclipseditto_piggyback_url=http://nginx:80/devops/piggyback/connectivity?timeout=10000
+      - eclipseditto_piggyback_user=devops
+      - eclipseditto_policy_file_name_with_path=eclipse-ditto-policy.json
+      - eclipseditto_policy_id_with_namespace=com.reply.idam:policy1
+      - eclipseditto_rabbitmq_exchange=IDAM_EXCHANGE
+      - eclipseditto_rabbitmq_queue=IDAM_ECLIPSE_DITTO_QUEUE_01
+      - logging_level=info
+      - mongodb_dbname=app1
+      - mongodb_host=mongodb
+      - mongodb_port=27017
+      - parameter_exchange_name=IDAM_PARAMETER_EXCHANGE_01
+      - rabbit_mq_host=rabbitmq
+      - rabbit_mq_management_api_port=15672
+      - rabbit_mq_password=guest
+      - rabbit_mq_port=5672
+      - rabbit_mq_username=guest
+      - TZ=Europe/Berlin
+    ports:
+      - 9090:9090
+    logging:
+      driver: fluentd
+      options:
+        tag: docker.core.device-management-api
+        fluentd-async-connect: "true"
+    depends_on:
+      - mongodb
+      - rabbitmq
+    networks:
+      - idam-test-network
+  
+  dm-frontend:
+    image: registry.gitlab.com/conceptreply/fundings/bmbf/idam-device-management/dm-frontend:latest
+    ports: 
+      - 3003:3000
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+    logging:
+      driver: fluentd
+      options:
+        tag: docker.core.dm-frontend
+        fluentd-async-connect: "true"
+    networks:
+      - idam-test-network
+
+  flask-api:
+    image: registry.gitlab.com/conceptreply/fundings/bmbf/idam-data-tools/flask-api:latest
+    depends_on: 
+      - timescaledb
+    ports: 
+      - 5001:5000
+    networks:
+      - idam-test-network
+
+  adsf-client:
+    image: registry.gitlab.com/conceptreply/fundings/bmbf/idam-data-tools/adsf-client:latest
+    depends_on: 
+      - rabbitmq
+    environment: 
+      - rabbit_mq_host=rabbitmq
+    networks:
+      - idam-test-network
+
+  python-adapter:
+    image: registry.gitlab.com/conceptreply/fundings/bmbf/idam-data-tools/python-adapter:latest
+    depends_on:
+      - timescaledb
+      - rabbitmq
+    logging:
+      driver: fluentd
+      options:
+        tag: docker.core.dm-frontend
+        fluentd-async-connect: "true"
+    networks:
+      - idam-test-network
+
+volumes:
+  timescale_store:
+    name: timescale_store
+  mongo_store:
+    name: mongo_store
+  grafana-storage:
+    name: grafana-storage
+
+networks:
+  idam-test-network:
+    external: true
+
