@@ -144,11 +144,15 @@ services:
 
   nginx:
     image: docker.io/nginx:1.13-alpine
-    volumes: # should all be docker configs
-       - ../cfg/ditto-nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-       - ../cfg/ditto-nginx/nginx.htpasswd:/etc/nginx/nginx.htpasswd:ro
-       - ../cfg/ditto-nginx/nginx-cors.conf:/etc/nginx/nginx-cors.conf:ro
-       - ../cfg/ditto-nginx/index.html:/etc/nginx/html/index.html:ro
+    configs:
+      - source: nginx.conf
+        target: /etc/nginx/nginx.conf
+      - source: nginx.htpasswd
+        target: /etc/nginx/nginx.htpasswd
+      - source: nginx-cors.conf
+        target: /etc/nginx/nginx-cors.conf
+      - source: index.html
+        target: /etc/nginx/html/index.html
     ports:
       - "8089:80"
     environment: # probably not necessary
@@ -167,9 +171,9 @@ services:
 
   swagger-ui:
     image: docker.io/swaggerapi/swagger-ui:v3.20.5
-    volumes:
-        - ../cfg/swagger/openapi:/usr/share/nginx/html/openapi:ro
-        - ../cfg/swagger/swagger3-index.html:/usr/share/nginx/html/index.html:ro
+    # volumes:
+    #     - ../cfg/swagger/openapi:/usr/share/nginx/html/openapi:ro
+    #     - ../cfg/swagger/swagger3-index.html:/usr/share/nginx/html/index.html:ro
     command: nginx -g 'daemon off;'
     environment: 
       - BOOTSTRAP_DISCOVERY_METHOD=docker-swarm-dns
@@ -189,6 +193,16 @@ volumes:
     name: mongo_store
   grafana-storage:
     name: grafana-storage
+
+configs:
+  nginx.conf:
+    external: true
+  nginx.htpasswd:
+    external: true
+  nginx-cors.conf:
+    external: true
+  index.html:
+    external: true
 
 networks:
   idam-test-network:
