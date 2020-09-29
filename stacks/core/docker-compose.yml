@@ -39,9 +39,6 @@ services:
       options:
         tag: docker.core.device-management-api
         fluentd-async-connect: "true"
-    depends_on:
-      - mongodb
-      - rabbitmq
     networks:
       - idam-test-network
   
@@ -61,8 +58,6 @@ services:
 
   flask-api:
     image: registry.gitlab.com/conceptreply/fundings/bmbf/idam-data-tools/flask-api:latest
-    depends_on: 
-      - timescaledb
     ports: 
       - 5001:5000
     networks:
@@ -70,8 +65,6 @@ services:
 
   adsf-client:
     image: registry.gitlab.com/conceptreply/fundings/bmbf/idam-data-tools/adsf-client:latest
-    depends_on: 
-      - rabbitmq
     environment: 
       - rabbit_mq_host=rabbitmq
     networks:
@@ -79,9 +72,6 @@ services:
 
   python-adapter:
     image: registry.gitlab.com/conceptreply/fundings/bmbf/idam-data-tools/python-adapter:latest
-    depends_on:
-      - timescaledb
-      - rabbitmq
     logging:
       driver: fluentd
       options:
