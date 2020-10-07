@@ -32,15 +32,20 @@ services:
       - rabbit_mq_port=5672
       - rabbit_mq_username=guest
       - TZ=Europe/Berlin
+      - portainer_api_url=http://portainer:9000/api
+      - portainer_api_user=admin
+      - portainer_api_password=password
+      - portainer_create_service_body_file_path=portainer-create-service-body.json
     ports:
       - 9090:9090
-    logging:
-      driver: fluentd
-      options:
-        tag: docker.core.device-management-api
-        fluentd-async-connect: "true"
+    # logging:
+    #   driver: fluentd
+    #   options:
+    #     tag: docker.core.device-management-api
+    #     fluentd-async-connect: "true"
     networks:
       - idam-test-network
+
   
   dm-frontend:
     image: registry.gitlab.com/conceptreply/fundings/bmbf/idam-device-management/dm-frontend:latest
@@ -72,11 +77,11 @@ services:
 
   python-adapter:
     image: registry.gitlab.com/conceptreply/fundings/bmbf/idam-data-tools/python-adapter:latest
-    logging:
-      driver: fluentd
-      options:
-        tag: docker.core.dm-frontend
-        fluentd-async-connect: "true"
+    # logging:
+    #   driver: fluentd
+    #   options:
+    #     tag: docker.core.dm-frontend
+    #     fluentd-async-connect: "true"
     networks:
       - idam-test-network
 

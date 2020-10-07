@@ -47,6 +47,9 @@ services:
     image: grafana/grafana:latest
     volumes:
       - grafana-storage:/var/lib/grafana
+      - ./provisioning:/etc/grafana/provisioning
+      - ./config.ini:/etc/grafana/config.ini
+      - ./dashboards:/var/lib/grafana/dashboards
     ports:
       - 3001:3000
     networks:

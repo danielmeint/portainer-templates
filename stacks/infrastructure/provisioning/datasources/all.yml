@@ -1,0 +1,23 @@
+# # config file version
+apiVersion: 1
+
+# # list of datasources that should be deleted from the database
+deleteDatasources:
+
+# # list of datasources to insert/update depending
+datasources:
+- name: idam_timescale_db
+  type: postgres
+  access: proxy
+  url: timescaledb:5432
+  user: postgres
+  password: password
+  database: idam
+  basicAuth: false
+  isDefault: true
+  jsonData:
+     sslmode: disable
+     timescaledb: true
+     postgresVersion: 1100
+  version: 1
+  editable: true
